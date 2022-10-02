@@ -2,4 +2,4 @@
 MSc Applied Mathematics thesis code repository.
 
 Thesis:
-* Applications of Quasi-Newton Optimization Methods in Deep Learning.
+* An application of Quasi-Newton Optimization Methods in Deep Learning
