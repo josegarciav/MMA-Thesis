@@ -1,5 +1,6 @@
-"""Functions for downloading and reading MNIST data."""
-# This is a file from the repository of Aymeric Damie
+"""Funciones para descargar y leer los datos MNIST."""
+# Implementacion del repositorio de Aymeric Damie
+
 
 from __future__ import print_function
 import gzip
