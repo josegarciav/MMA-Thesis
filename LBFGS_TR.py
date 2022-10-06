@@ -1,3 +1,5 @@
+#Implementacion de https://github.com/root-master/lbfgs-tr
+
 import numpy as np
 from numpy.linalg import inv, qr, eig, norm
 import math
@@ -19,7 +21,7 @@ parser.add_argument('--method', '-method',default='trust-region',
 parser.add_argument(
         '--whole_gradient','-use-whole-data', action='store_true',default=False,
         help='Compute the gradient using all data')
-parser.add_argument('--max_iter', '-maxiter', default=100, help='max iterations')
+parser.add_argument('--max_iter', '-maxiter', default=100, help='max iterations') #Numero de iteraciones
 
 args = parser.parse_args()
 
@@ -884,7 +886,7 @@ if use_whole_data:
 							+ str(m) + '_n_2' + '.pkl'
 
 
-# Saving the objects:
+# Guardar en una sola lista
 with open(result_file_path, 'wb') as f: 
     pickle.dump([loss_train_results, 
                 loss_validation_results,
