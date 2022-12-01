@@ -7,7 +7,9 @@ from math import isclose, sqrt
 #from tqdm import tqdm
 import time
 import tensorflow as tf
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
+tf.compat.v1.disable_resource_variables()
+tf.compat.v1.disable_eager_execution()
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -144,14 +146,14 @@ for key, value in n_W.items():
 ###############################################################################
 ######################## f(x;w) ###############################################
 ###############################################################################
-x = tf.placeholder(tf.float32, [None, n_input])
-y = tf.placeholder(tf.float32, [None, n_classes])
+x = tf.compat.v1.placeholder(tf.float32, [None, n_input])
+y = tf.compat.v1.placeholder(tf.float32, [None, n_classes])
 
-w_initializer = tf.contrib.layers.xavier_initializer()
+w_initializer = tf.compat.v1.keras.initializers.VarianceScaling(scale=1.0, mode="fan_avg", distribution="uniform")
 
 w_tf = {}
 for key, _ in dim_w.items():
-	w_tf[key] = tf.get_variable(key, shape=dim_w[key], 
+	w_tf[key] = tf.compat.v1.get_variable(key, shape=dim_w[key], 
 											initializer=w_initializer)
 
 def lenet5_model(x,_w):
@@ -159,28 +161,28 @@ def lenet5_model(x,_w):
 	x = tf.reshape(x, shape = input_shape)
 	# LAYER 1 -- Convolution Layer
 	conv1 = tf.nn.relu(tf.nn.conv2d(input = x, 
-									filter =_w['1_w_conv'],
+									filters =_w['1_w_conv'],
 									strides = [1,S1,S1,1],
 									padding = 'VALID') + _w['1_b_conv'])
 	# Layer 2 -- max pool
-	conv1 = tf.nn.max_pool(	value = conv1, 
+	conv1 = tf.nn.max_pool2d(	input = conv1, 
 							ksize = [1, F2, F2, 1], 
 							strides = [1, S2, S2, 1], 
 							padding = 'VALID')
 
 	# LAYER 3 -- Convolution Layer
 	conv2 = tf.nn.relu(tf.nn.conv2d(input = conv1, 
-									filter =_w['2_w_conv'],
+									filters =_w['2_w_conv'],
 									strides = [1,S3,S3,1],
 									padding = 'VALID') + _w['2_b_conv'])
 	# Layer 4 -- max pool
-	conv2 = tf.nn.max_pool(	value = conv2 , 
+	conv2 = tf.nn.max_pool2d(	input = conv2 , 
 							ksize = [1, F4, F4, 1], 
 							strides = [1, S4, S4, 1], 
 							padding = 'VALID')
 	# Fully connected layer
 	# Reshape conv2 output to fit fully connected layer
-	fc = tf.contrib.layers.flatten(conv2)
+	fc = tf.compat.v1.layers.flatten(conv2)
 	fc = tf.nn.relu(tf.matmul(fc, _w['3_w_fc']) + _w['3_b_fc'])
 	# fc = tf.nn.dropout(fc, dropout_rate)
 
@@ -193,10 +195,10 @@ y_ = model(x,w_tf)
 
 # Softmax loss
 loss = tf.reduce_mean(
-	tf.nn.softmax_cross_entropy_with_logits(labels = y, logits = y_))
+	input_tensor=tf.nn.softmax_cross_entropy_with_logits(labels = tf.stop_gradient( y), logits = y_))
 
-correct_prediction = tf.equal(tf.argmax(y_, 1), tf.argmax(y, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+correct_prediction = tf.equal(tf.argmax(input=y_, axis=1), tf.argmax(input=y, axis=1))
+accuracy = tf.reduce_mean(input_tensor=tf.cast(correct_prediction, tf.float32))
 
 ###############################################################################
 ######################## TF GRADINETS #########################################
@@ -211,12 +213,12 @@ for layer, _ in w_tf.items():
 aux_w = {}
 for layer, _ in w_tf.items():
 	name = layer + 'aux_w_'
-	aux_w[layer] = tf.get_variable(name=name, 
+	aux_w[layer] = tf.compat.v1.get_variable(name=name, 
 					shape=w_tf[layer].get_shape(), initializer=w_initializer)
 
 aux_w_placeholder = {}
 for layer, _ in w_tf.items():
-	aux_w_placeholder[layer] = tf.placeholder(dtype="float",
+	aux_w_placeholder[layer] = tf.compat.v1.placeholder(dtype="float",
 										shape=w_tf[layer].get_shape())
 aux_w_init = {}
 for layer, _ in w_tf.items():
@@ -224,7 +226,7 @@ for layer, _ in w_tf.items():
 
 aux_output = model(x,aux_w)
 aux_loss = tf.reduce_mean(
-	tf.nn.softmax_cross_entropy_with_logits(labels = y, logits = aux_output))
+	input_tensor=tf.nn.softmax_cross_entropy_with_logits(labels = tf.stop_gradient( y), logits = aux_output))
 aux_grad_w = {}
 for layer, _ in w_tf.items():
 	aux_grad_w[layer] = tf.gradients(xs=aux_w[layer], ys=aux_loss)
@@ -232,15 +234,15 @@ for layer, _ in w_tf.items():
 update_w = {}
 update_w_placeholder = {}
 for layer, _ in w_tf.items():
-	update_w_placeholder[layer] = tf.placeholder(dtype="float",
+	update_w_placeholder[layer] = tf.compat.v1.placeholder(dtype="float",
 										shape=w_tf[layer].get_shape())
 for layer, _ in w_tf.items():
 	update_w[layer] = w_tf[layer].assign(update_w_placeholder[layer])
 
 ###############################################################################
 ###############################################################################
-saver = tf.train.Saver()
-init = tf.global_variables_initializer()
+saver = tf.compat.v1.train.Saver()
+init = tf.compat.v1.global_variables_initializer()
 ###############################################################################
 ###############################################################################
 
@@ -456,7 +458,7 @@ def eval_reduction_ratio(sess,g,p):
 
 	ared = old_f - new_f
 
-	if S.size is not 0:
+	if S.size != 0:
 		p_ll = P_ll.T @ p
 		p_NL_norm = sqrt ( abs( norm(p) ** 2 - norm(p_ll) ** 2 ) )
 		p_T_B_p = sum( Lambda_1 * p_ll ** 2)  + gamma * p_NL_norm ** 2
@@ -861,7 +863,7 @@ def lbfgs_trust_region_algorithm(sess,max_num_iter=max_num_iter):
 
 start = time.time()
 
-with tf.Session() as sess:
+with tf.compat.v1.Session() as sess:
 	sess.run(init)
 
 	if method == 'trust-region':
