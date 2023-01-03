@@ -1,4 +1,3 @@
-#Implementacion de https://github.com/root-master/lbfgs-tr
 
 import numpy as np
 from numpy.linalg import inv, qr, eig, norm
