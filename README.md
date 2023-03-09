@@ -15,5 +15,3 @@ This Jupyter notebook (Thesis_MMA_Jose_Garcia_Nov_2022.ipynb) contains my full M
 
 ## Input MNIST Data
 This Python script (input_MNIST_data.py) contains functions for loading and preprocessing the MNIST dataset, which is used throughout my thesis. The script includes functions for downloading the dataset, loading it into memory, and preprocessing it for use in a neural network.
-
-Do not hesitate to contact me if you have any questions (aneurysgarcia@gmail.com).
