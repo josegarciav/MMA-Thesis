@@ -1,5 +1,5 @@
 # Master of Science in Applied Mathematics
-This repository contains code for my MSc in Applied Mathematics, which explores the performance of various optimization algorithms on neural networks. Specifically, the performance of quasi-Newton optimization methods on the LeNet-5 convolutional neural network architecture is discussed.
+This repository contains code for my MSc in Applied Mathematics, which explores the performance of various optimization algorithms on neural networks. Specifically, the performance of quasi-Newton optimization methods on the LeNet-5 convolutional neural network architecture.
 
 ## LBFGS Implementation
 This Jupyter notebook (LBFGS_Implementation.ipynb) contains my implementation of the Limited-memory Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) optimization algorithm. The notebook includes an overview of the algorithm, a step-by-step implementation, and a comparison of the LBFGS algorithm with other optimization algorithms.
